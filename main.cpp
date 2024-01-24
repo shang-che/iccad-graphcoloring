@@ -12,11 +12,14 @@ void print_matrix();
 void dfs(int node, int numNodes, int edge[][9999], vector<bool>& visited);
 int countConnectedComponents(int numNodes, int edge[][9999]);
 
-int edge[9999][9999];
-int pos[9999][9999];
-int cot = 1;
-bool visited[9999];
-int color[99] = {0};  // 0 no color, 1 color A, 2 color B
+int edge[9999][9999];  // adjency matrix
+int pos[9999][4];      // every component's position(x1,y1,x2,y2)
+int cot = 1;           // number of components
+bool visited[9999];    // is component visited?
+int color[99] = {0, 0, 0, 0, 0, 0, 2, 1, 1, 2, 2,
+                 1, 1, 2, 1, 2, 2, 1, 2, 1};  // 0 no color, 1 color A(green), 2
+                                              // color B(blue)
+bool isconfict[500] = {0};                    // graph isconfict?
 int main() {
     bool flag = true;
     freopen("input.in", "r", stdin);
@@ -118,6 +121,9 @@ int main() {
         }
     }
     print_edge();
+    for (int i = 1; i < cot; i++) {
+        cout << i << ": " << color[i] << endl;
+    }
     //---output with edge format---
     //
     // print_matrix();
@@ -172,3 +178,9 @@ int countConnectedComponents(int numNodes, int edge[][9999]) {
     return count;
 }
 // check conflicts
+
+// get valid connected components and check boundaries(top right and buttom
+// left)
+
+// iterate density window to calulate A and B
+//  cost function
