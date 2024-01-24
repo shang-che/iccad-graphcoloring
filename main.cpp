@@ -12,10 +12,36 @@ void print_matrix();
 void dfs(int node, int numNodes, int edge[][9999], vector<bool>& visited);
 int countConnectedComponents(int numNodes, int edge[][9999]);
 
+class Component {
+   public:
+    int x1, y1, x2, y2;
+    int connectwith;
+    int color;
+    int id;
+    Component(int x1, int y1, int x2, int y2, int color, int id,
+              int connectwith) {
+        this->x1 = x1;
+        this->y1 = y1;
+        this->x2 = x2;
+        this->y2 = y2;
+        this->color = color;
+        this->id = id;
+        this->connectwith = connectwith;
+    }
+    Component() {
+        this->x1 = 0;
+        this->y1 = 0;
+        this->x2 = 0;
+        this->y2 = 0;
+        this->color = 0;
+        this->id = 0;
+    }
+};
+Component component[1000];
 int edge[9999][9999];  // adjency matrix
-int pos[9999][4];      // every component's position(x1,y1,x2,y2)
-int cot = 1;           // number of components
-bool visited[9999];    // is component visited?
+// int pos[9999][4];      // every component's position(x1,y1,x2,y2)
+int cot = 1;         // number of components
+bool visited[9999];  // is component visited?
 int color[99] = {0, 0, 0, 0, 0, 0, 2, 1, 1, 2, 2,
                  1, 1, 2, 1, 2, 2, 1, 2, 1};  // 0 no color, 1 color A(green), 2
                                               // color B(blue)
@@ -41,10 +67,15 @@ int main() {
     char cc;
 
     while (cin >> a >> cc >> b >> cc >> c >> cc >> d) {
-        pos[cot][0] = a;  // x1 x1<x2 buttom left
-        pos[cot][1] = b;  // y1 y1<y2 buttom left
-        pos[cot][2] = c;  // x2 top right
-        pos[cot][3] = d;  // y2 top right
+        component[cot].x1 = a;
+        component[cot].y1 = b;
+        component[cot].x2 = c;
+        component[cot].y2 = d;
+
+        // pos[cot][0] = a;  // x1 x1<x2 buttom left
+        // pos[cot][1] = b;  // y1 y1<y2 buttom left
+        // pos[cot][2] = c;  // x2 top right
+        // pos[cot][3] = d;  // y2 top right
         cot += 1;
     }
     // input data
@@ -57,52 +88,58 @@ int main() {
             if (j == i) continue;
             // if(edge[j][i]==1) continue;
             // if(edge[i][j]==1) continue;
-            if (pos[i][0] <= pos[j][0] &&
-                pos[j][0] <=
-                    pos[i][2]) {  // 看j shape的兩個點的x有沒有在i shape的範圍內
-                int y_distance = min(
-                    min(abs(pos[i][1] - pos[j][3]), abs(pos[i][1] - pos[j][1])),
-                    min(abs(pos[i][3] - pos[j][1]),
-                        abs(pos[i][3] - pos[j][3])));
+
+            if (component[i].x1 <= component[j].x1 &&
+                component[j].x1 <=
+                    component[i]
+                        .x2) {  // 看j shape的兩個點的x有沒有在i shape的範圍內
+                int y_distance =
+                    min(min(abs(component[i].y1 - component[j].y2),
+                            abs(component[i].y1 - component[j].y1)),
+                        min(abs(component[i].y2 - component[j].y1),
+                            abs(component[i].y2 - component[j].y2)));
                 if (y_distance <= beta) {
                     edge_num++;
                     edge[i][j] = 1;
                     edge[j][i] = 1;
                 }
-            } else if (pos[i][0] <= pos[j][2] &&
-                       pos[j][2] <=
-                           pos[i][2]) {  // 看j shape的兩個點的x有沒有在i
-                                         // shape的範圍內
-                int y_distance = min(
-                    min(abs(pos[i][1] - pos[j][3]), abs(pos[i][1] - pos[j][1])),
-                    min(abs(pos[i][3] - pos[j][1]),
-                        abs(pos[i][3] - pos[j][3])));
+            } else if (component[i].x1 <= component[j].x2 &&
+                       component[j].x2 <=
+                           component[i].x2) {  // 看j shape的兩個點的x有沒有在i
+                                               // shape的範圍內
+                int y_distance =
+                    min(min(abs(component[i].y1 - component[j].y2),
+                            abs(component[i].y1 - component[j].y1)),
+                        min(abs(component[i].y2 - component[j].y1),
+                            abs(component[i].y2 - component[j].y2)));
                 if (y_distance <= beta) {
                     edge_num++;
                     edge[i][j] = 1;
                     edge[j][i] = 1;
                 }
-            } else if (pos[i][1] <= pos[j][1] &&
-                       pos[j][1] <=
-                           pos[i][3]) {  // 看j shape的兩個點的y有沒有在i
-                                         // shape的範圍內
-                int x_distance = min(
-                    min(abs(pos[i][0] - pos[j][0]), abs(pos[i][0] - pos[j][2])),
-                    min(abs(pos[i][2] - pos[j][0]),
-                        abs(pos[i][2] - pos[j][2])));
+            } else if (component[i].y1 <= component[j].y1 &&
+                       component[j].y1 <=
+                           component[i].y2) {  // 看j shape的兩個點的y有沒有在i
+                                               // shape的範圍內
+                int x_distance =
+                    min(min(abs(component[i].x1 - component[j].x1),
+                            abs(component[i].x1 - component[j].x2)),
+                        min(abs(component[i].x2 - component[j].x1),
+                            abs(component[i].x2 - component[j].x2)));
                 if (x_distance <= alpha) {
                     edge_num++;
                     edge[i][j] = 1;
                     edge[j][i] = 1;
                 }
-            } else if (pos[i][1] <= pos[j][3] &&
-                       pos[j][3] <=
-                           pos[i][3]) {  // 看j shape的兩個點的y有沒有在i
-                                         // shape的範圍內
-                int x_distance = min(
-                    min(abs(pos[i][0] - pos[j][0]), abs(pos[i][0] - pos[j][2])),
-                    min(abs(pos[i][2] - pos[j][0]),
-                        abs(pos[i][2] - pos[j][2])));
+            } else if (component[i].y1 <= component[j].y2 &&
+                       component[j].y2 <=
+                           component[i].y2) {  // 看j shape的兩個點的y有沒有在i
+                                               // shape的範圍內
+                int x_distance =
+                    min(min(abs(component[i].x1 - component[j].x1),
+                            abs(component[i].x1 - component[j].x2)),
+                        min(abs(component[i].x2 - component[j].x1),
+                            abs(component[i].x2 - component[j].x2)));
                 if (x_distance <= alpha) {
                     edge_num++;
                     edge[i][j] = 1;
@@ -121,9 +158,9 @@ int main() {
         }
     }
     print_edge();
-    for (int i = 1; i < cot; i++) {
-        cout << i << ": " << color[i] << endl;
-    }
+    // for (int i = 1; i < cot; i++) {
+    //     cout << i << ": " << color[i] << endl;
+    // }
     //---output with edge format---
     //
     // print_matrix();
