@@ -18,6 +18,7 @@ class Component {
     int connectwith;
     int color;
     int id;
+    int graphId;
     Component(int x1, int y1, int x2, int y2, int color, int id,
               int connectwith) {
         this->x1 = x1;
@@ -40,8 +41,8 @@ class Component {
 Component component[1000];
 int edge[9999][9999];  // adjency matrix
 // int pos[9999][4];      // every component's position(x1,y1,x2,y2)
-int cot = 1;         // number of components
-bool visited[9999];  // is component visited?
+int cot = 1;  // number of components
+// bool visited[9999];  // is component visited?
 int color[99] = {0, 0, 0, 0, 0, 0, 2, 1, 1, 2, 2,
                  1, 1, 2, 1, 2, 2, 1, 2, 1};  // 0 no color, 1 color A(green), 2
                                               // color B(blue)
@@ -215,7 +216,17 @@ int countConnectedComponents(int numNodes, int edge[][9999]) {
     return count;
 }
 // check conflicts
+void checkConflict(int numNodes, int edge[][9999]) {
+    vector<bool> visited(numNodes, false);
+    int count = 0;
 
+    for (int node = 1; node <= numNodes; ++node) {
+        if (!visited[node]) {
+            dfs(node, numNodes, edge, visited);
+            count++;
+                }
+    }
+}
 // get valid connected components and check boundaries(top right and buttom
 // left)
 
