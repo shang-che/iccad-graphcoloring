@@ -11,6 +11,7 @@ void print_edge();
 void print_matrix();
 void dfs(int node, int numNodes, int edge[][9999], vector<bool>& visited);
 int countConnectedComponents(int numNodes, int edge[][9999]);
+bool node_conflict[9999];
 
 class Component {
    public:
@@ -194,11 +195,19 @@ void print_matrix() {
         cout << '\n';
     }
 }
-void dfs(int node, int numNodes, int edge[][9999], vector<bool>& visited) {
+void dfs(int node, int parent, int numNodes, int edge[][9999], vector<bool>& visited) {
     visited[node] = true;
     for (int neighbor = 1; neighbor <= numNodes; ++neighbor) {
-        if (edge[node][neighbor] == 1 && !visited[neighbor]) {
-            dfs(neighbor, numNodes, edge, visited);
+        if (edge[node][neighbor] == 1 ) {
+            if(!visited[neighbor]){
+                // 如果鄰居還沒被訪問過，繼續遞歸
+                dfs(neighbor, parent, numNodes, edge, visited);
+            }
+            else if(neighbor != parent) {
+                // 如果鄰居已被訪問過且不是當前節點的父節點，表示找到循環
+                node_conflict[node]=true;
+            }
+            dfs(neighbor,parent, numNodes, edge, visited);
         }
     }
 }
