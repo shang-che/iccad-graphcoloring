@@ -10,7 +10,7 @@ int getNumber(string);
 void print_edge();
 void print_matrix();
 void dfs(int node, int numNodes, int edge[][9999], vector<bool>& visited);
-int countConnectedComponents(int numNodes, int edge[][9999]);
+int countConnectedGraph(int numNodes, int edge[][9999]);
 bool node_conflict[9999];
 
 class Component {
@@ -20,6 +20,7 @@ class Component {
     int color;
     int id;
     int graphId;
+    bool graphConflicted;
     Component(int x1, int y1, int x2, int y2, int color, int id,
               int connectwith) {
         this->x1 = x1;
@@ -37,12 +38,14 @@ class Component {
         this->y2 = 0;
         this->color = 0;
         this->id = 0;
+        this->graphId = -1;
+        this->graphConflicted = false;
     }
 };
 Component component[1000];
 int edge[9999][9999];  // adjency matrix
 // int pos[9999][4];      // every component's position(x1,y1,x2,y2)
-int cot = 1;  // number of components
+int numberOfComponents = 1;  // number of components
 // bool visited[9999];  // is component visited?
 int color[99] = {0, 0, 0, 0, 0, 0, 2, 1, 1, 2, 2,
                  1, 1, 2, 1, 2, 2, 1, 2, 1};  // 0 no color, 1 color A(green), 2
@@ -69,22 +72,22 @@ int main() {
     char cc;
 
     while (cin >> a >> cc >> b >> cc >> c >> cc >> d) {
-        component[cot].x1 = a;
-        component[cot].y1 = b;
-        component[cot].x2 = c;
-        component[cot].y2 = d;
+        component[numberOfComponents].x1 = a;
+        component[numberOfComponents].y1 = b;
+        component[numberOfComponents].x2 = c;
+        component[numberOfComponents].y2 = d;
 
-        // pos[cot][0] = a;  // x1 x1<x2 buttom left
-        // pos[cot][1] = b;  // y1 y1<y2 buttom left
-        // pos[cot][2] = c;  // x2 top right
-        // pos[cot][3] = d;  // y2 top right
-        cot += 1;
+        // pos[numberOfComponents][0] = a;  // x1 x1<x2 buttom left
+        // pos[numberOfComponents][1] = b;  // y1 y1<y2 buttom left
+        // pos[numberOfComponents][2] = c;  // x2 top right
+        // pos[numberOfComponents][3] = d;  // y2 top right
+        numberOfComponents += 1;
     }
     // input data
     memset(edge, 0, sizeof(edge));
     int edge_num = 0;
-    for (int i = 1; i <= cot; i++) {
-        for (int j = 1; j <= cot; j++) {
+    for (int i = 1; i <= numberOfComponents; i++) {
+        for (int j = 1; j <= numberOfComponents; j++) {
             // //i是要比較的shape
             // //j是要跟他比的shape
             if (j == i) continue;
@@ -160,15 +163,20 @@ int main() {
         }
     }
     print_edge();
-    // for (int i = 1; i < cot; i++) {
+    // for (int i = 1; i < numberOfComponents; i++) {
     //     cout << i << ": " << color[i] << endl;
     // }
     //---output with edge format---
     //
     // print_matrix();
     //---output with matrix format---
-    int numConnectedComponents = countConnectedComponents(cot - 1, edge);
-    cout << numConnectedComponents;
+    int numConnectedGraph = countConnectedGraph(numberOfComponents - 1, edge);
+    cout << numConnectedGraph << endl;
+    cout << numberOfComponents << endl;
+
+    for (int i = 1; i < numberOfComponents; i++) {
+        cout << i << ": " << component[i].graphConflicted << endl;
+    }
 }
 
 int getNumber(string st) {
@@ -179,8 +187,8 @@ int getNumber(string st) {
     return ret;
 }
 void print_edge() {
-    for (int i = 1; i <= cot; i++) {
-        for (int j = 1; j <= cot; j++) {
+    for (int i = 1; i <= numberOfComponents; i++) {
+        for (int j = 1; j <= numberOfComponents; j++) {
             // cout << edge[i][j];
             if (i <= j && edge[i][j] == 1)
                 cout << "e " << i << ' ' << j << '\n';
@@ -188,31 +196,26 @@ void print_edge() {
         // cout << endl;
     }
 }
-void print_matrix() {
-    for (int i = 1; i <= cot; i++) {
-        for (int j = 1; j <= cot; j++) {
+void print_matrix() {  // print edge
+    for (int i = 1; i <= numberOfComponents; i++) {
+        for (int j = 1; j <= numberOfComponents; j++) {
             cout << edge[i][j] << ' ';
         }
         cout << '\n';
     }
 }
-void dfs(int node, int parent, int numNodes, int edge[][9999], vector<bool>& visited) {
+void dfs(int node, int numNodes, int edge[][9999], vector<bool>& visited) {
     visited[node] = true;
     for (int neighbor = 1; neighbor <= numNodes; ++neighbor) {
-        if (edge[node][neighbor] == 1 ) {
-            if(!visited[neighbor]){
-                // 如果鄰居還沒被訪問過，繼續遞歸
-                dfs(neighbor, parent, numNodes, edge, visited);
+        if (edge[node][neighbor] == 1) {
+            if (!visited[neighbor]) {
+                dfs(neighbor, numNodes, edge, visited);
             }
-            else if(neighbor != parent) {
-                // 如果鄰居已被訪問過且不是當前節點的父節點，表示找到循環
-                node_conflict[node]=true;
-            }
-            dfs(neighbor,parent, numNodes, edge, visited);
+            // dfs(neighbor, numNodes, edge, visited);
         }
     }
 }
-int countConnectedComponents(int numNodes, int edge[][9999]) {
+int countConnectedGraph(int numNodes, int edge[][9999]) {
     vector<bool> visited(numNodes, false);
     int count = 0;
 
@@ -225,17 +228,17 @@ int countConnectedComponents(int numNodes, int edge[][9999]) {
     return count;
 }
 // check conflicts
-void checkConflict(int numNodes, int edge[][9999]) {
-    vector<bool> visited(numNodes, false);
-    int count = 0;
+// void checkConflict(int numNodes, int edge[][9999]) {
+//     vector<bool> visited(numNodes, false);
+//     int count = 0;
 
-    for (int node = 1; node <= numNodes; ++node) {
-        if (!visited[node]) {
-            dfs(node, numNodes, edge, visited);
-            count++;
-                }
-    }
-}
+//     for (int node = 1; node <= numNodes; ++node) {
+//         if (!visited[node]) {
+//             dfs(node, numNodes, edge, visited);
+//             count++;
+//         }
+//     }
+// }
 // get valid connected components and check boundaries(top right and buttom
 // left)
 
