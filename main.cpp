@@ -181,6 +181,36 @@ int main() {
         subGraph.clear();
     }
 
+    // create bounding box
+    int BoundingBox_x1 = INT_MAX, BoundingBox_y1 = INT_MAX,
+        BoundingBox_x2 = INT_MIN, BoundingBox_y2 = INT_MIN;
+    // x1 x1<x2 buttom left
+    // y1 y1<y2 buttom left
+    // x2 top right
+    // y2 top right
+    for (int i = 1; i <= numberOfComponents; i++) {
+        if (!component[i].graphConflicted) {
+            if (component[i].x1 < BoundingBox_x1)
+                BoundingBox_x1 = component[i].x1;
+            if (component[i].y1 < BoundingBox_y1)
+                BoundingBox_y1 = component[i].y1;
+            if (component[i].x2 > BoundingBox_x2)
+                BoundingBox_x2 = component[i].x2;
+            if (component[i].y2 > BoundingBox_y2)
+                BoundingBox_y2 = component[i].y2;
+        }
+    }
+    cout << BoundingBox_x1 << ' ' << BoundingBox_y1 << ' ' << BoundingBox_x2
+         << ' ' << BoundingBox_y2 << '\n';
+
+    // Iterator for bounding box (color density window (window size = omega))
+    for (int i = BoundingBox_y1; i <= BoundingBox_y2; i += omega) {
+        for (int j = BoundingBox_x1; j <= BoundingBox_x2; j += omega) {
+            cout << j << ' ' << i << ' ' << j + omega << ' ' << i + omega
+                 << endl;
+        }
+    }
+
     // for (int i = 1; i <= numberOfComponents; i++) {
     //     cout << i << ": " << component[i].graphConflicted
     //          << endl;  // is Bipartite?
