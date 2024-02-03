@@ -1,9 +1,9 @@
 #include <string.h>
-
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <unordered_map>
 using namespace std;
 
 int getNumber(string);
@@ -11,18 +11,18 @@ void print_edge();
 void print_matrix();
 void dfs(int node, int numNodes, int edge[][9999], vector<bool>& visited);
 int countConnectedGraph(int numNodes, int edge[][9999]);
-bool node_conflict[9999];
+bool isBipartite(unordered_map<int, vector<int> >& graph);
+bool dfsBipartite(int node, int currentColor, unordered_map<int, int>& color, unordered_map<int, vector<int> >& graph);
 
 class Component {
-   public:
+public:
     int x1, y1, x2, y2;
     int connectwith;
     int color;
     int id;
     int graphId;
     bool graphConflicted;
-    Component(int x1, int y1, int x2, int y2, int color, int id,
-              int connectwith) {
+    Component(int x1, int y1, int x2, int y2, int color, int id, int connectwith) {
         this->x1 = x1;
         this->y1 = y1;
         this->x2 = x2;
@@ -43,14 +43,14 @@ class Component {
     }
 };
 Component component[1000];
-int edge[9999][9999];  // adjency matrix
+int edge[9999][9999]; // adjency matrix
 // int pos[9999][4];      // every component's position(x1,y1,x2,y2)
-int numberOfComponents = 1;  // number of components
+int numberOfComponents = 1; // number of components
 // bool visited[9999];  // is component visited?
 int color[99] = {0, 0, 0, 0, 0, 0, 2, 1, 1, 2, 2,
-                 1, 1, 2, 1, 2, 2, 1, 2, 1};  // 0 no color, 1 color A(green), 2
-                                              // color B(blue)
-bool isconfict[500] = {0};                    // graph isconfict?
+                 1, 1, 2, 1, 2, 2, 1, 2, 1}; // 0 no color, 1 color A(green), 2 color B(blue)
+bool isconfict[500] = {0};                   // graph isconfict?
+
 int main() {
     bool flag = true;
     freopen("input.in", "r", stdin);
@@ -90,14 +90,15 @@ int main() {
         for (int j = 1; j <= numberOfComponents; j++) {
             // //i是要比較的shape
             // //j是要跟他比的shape
-            if (j == i) continue;
+            if (j == i)
+                continue;
             // if(edge[j][i]==1) continue;
             // if(edge[i][j]==1) continue;
 
             if (component[i].x1 <= component[j].x1 &&
                 component[j].x1 <=
                     component[i]
-                        .x2) {  // 看j shape的兩個點的x有沒有在i shape的範圍內
+                        .x2) { // 看j shape的兩個點的x有沒有在i shape的範圍內
                 int y_distance =
                     min(min(abs(component[i].y1 - component[j].y2),
                             abs(component[i].y1 - component[j].y1)),
@@ -110,8 +111,8 @@ int main() {
                 }
             } else if (component[i].x1 <= component[j].x2 &&
                        component[j].x2 <=
-                           component[i].x2) {  // 看j shape的兩個點的x有沒有在i
-                                               // shape的範圍內
+                           component[i].x2) { // 看j shape的兩個點的x有沒有在i
+                                              // shape的範圍內
                 int y_distance =
                     min(min(abs(component[i].y1 - component[j].y2),
                             abs(component[i].y1 - component[j].y1)),
@@ -124,8 +125,8 @@ int main() {
                 }
             } else if (component[i].y1 <= component[j].y1 &&
                        component[j].y1 <=
-                           component[i].y2) {  // 看j shape的兩個點的y有沒有在i
-                                               // shape的範圍內
+                           component[i].y2) { // 看j shape的兩個點的y有沒有在i
+                                              // shape的範圍內
                 int x_distance =
                     min(min(abs(component[i].x1 - component[j].x1),
                             abs(component[i].x1 - component[j].x2)),
@@ -138,8 +139,8 @@ int main() {
                 }
             } else if (component[i].y1 <= component[j].y2 &&
                        component[j].y2 <=
-                           component[i].y2) {  // 看j shape的兩個點的y有沒有在i
-                                               // shape的範圍內
+                           component[i].y2) { // 看j shape的兩個點的y有沒有在i
+                                              // shape的範圍內
                 int x_distance =
                     min(min(abs(component[i].x1 - component[j].x1),
                             abs(component[i].x1 - component[j].x2)),
@@ -175,8 +176,24 @@ int main() {
     cout << numberOfComponents << endl;
 
     for (int i = 1; i < numberOfComponents; i++) {
-        cout << i << ": " << component[i].graphConflicted << endl;
+        cout << i << ": " << component[i].graphConflicted << endl;//is Bipartite?
     }
+
+    // Check if the graph is Bipartite
+    unordered_map<int, vector<int> > graph;
+
+    // Create adjacency list from the edge matrix
+    for (int i = 1; i <= numberOfComponents; ++i) {
+        for (int j = 1; j <= numberOfComponents; ++j) {
+            if (edge[i][j] == 1) {
+                graph[i].push_back(j);
+                graph[j].push_back(i);
+            }
+        }
+    }
+
+    bool isBipartiteGraph = isBipartite(graph);
+    cout << "Is Bipartite: " << (isBipartiteGraph ? "Yes" : "No") << endl;
 }
 
 int getNumber(string st) {
@@ -196,7 +213,7 @@ void print_edge() {
         // cout << endl;
     }
 }
-void print_matrix() {  // print edge
+void print_matrix() { // print edge
     for (int i = 1; i <= numberOfComponents; i++) {
         for (int j = 1; j <= numberOfComponents; j++) {
             cout << edge[i][j] << ' ';
@@ -227,20 +244,51 @@ int countConnectedGraph(int numNodes, int edge[][9999]) {
     }
     return count;
 }
-// check conflicts
-// void checkConflict(int numNodes, int edge[][9999]) {
-//     vector<bool> visited(numNodes, false);
-//     int count = 0;
 
-//     for (int node = 1; node <= numNodes; ++node) {
-//         if (!visited[node]) {
-//             dfs(node, numNodes, edge, visited);
-//             count++;
-//         }
-//     }
-// }
-// get valid connected components and check boundaries(top right and buttom
-// left)
+/**
+ * Determines if a given graph is bipartite.
+ * A graph is bipartite if its vertices can be divided into two disjoint sets such that every edge connects a vertex from one set to another.
+ * This function uses depth-first search (DFS) to check if the graph is bipartite.
+ * 
+ * @param graph The graph represented as an unordered map, where the key is the node and the value is a vector of its neighboring nodes.
+ * @return True if the graph is bipartite, false otherwise.
+ */
+bool isBipartite(unordered_map<int, vector<int> >& graph) {
+    unordered_map<int, int> color;
 
-// iterate density window to calulate A and B
-//  cost function
+    for (auto& node : graph) {
+        if (color.find(node.first) == color.end()) {
+            int currentColor = 1;
+            if (!dfsBipartite(node.first, currentColor, color, graph)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Performs a depth-first search to determine if a graph is bipartite.
+ * 
+ * @param node The current node being visited.
+ * @param currentColor The color assigned to the current node.
+ * @param color A map that stores the color assigned to each node.
+ * @param graph A map that represents the graph structure.
+ * @return True if the graph is bipartite, false otherwise.
+ */
+bool dfsBipartite(int node, int currentColor, unordered_map<int, int>& color, unordered_map<int, vector<int> >& graph) {
+    color[node] = currentColor;
+
+    for (int neighbor : graph[node]) {
+        if (color.find(neighbor) == color.end()) {
+            if (!dfsBipartite(neighbor, -currentColor, color, graph)) {
+                return false;
+            }
+        } else if (color[neighbor] == color[node]) {
+            return false;
+        }
+    }
+
+    return true;
+}
