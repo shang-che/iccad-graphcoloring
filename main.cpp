@@ -46,6 +46,24 @@ class Component {
         this->graphConflicted = false;
     }
 };
+class DensityWindow {
+   public:
+    int x1, y1, x2, y2;
+    double greenDensity;
+    double blueDensity;
+    DensityWindow(int x1, int y1, int x2, int y2) {
+        this->x1 = x1;
+        this->y1 = y1;
+        this->x2 = x2;
+        this->y2 = y2;
+    }
+    DensityWindow() {
+        this->x1 = 0;
+        this->y1 = 0;
+        this->x2 = 0;
+        this->y2 = 0;
+    }
+};
 Component component[1000];
 int edge[9999][9999];  // adjency matrix
 // int pos[9999][4];      // every component's position(x1,y1,x2,y2)
@@ -79,6 +97,7 @@ int main() {
         component[numberOfComponents].y1 = b;  // y1 y1<y2 buttom left
         component[numberOfComponents].x2 = c;  // x2 top right
         component[numberOfComponents].y2 = d;  // y2 top right
+        component[numberOfComponents].color = color[numberOfComponents];
         numberOfComponents += 1;
     }
     numberOfComponents--;  // fix the number of components
@@ -200,22 +219,38 @@ int main() {
                 BoundingBox_y2 = component[i].y2;
         }
     }
-    cout << BoundingBox_x1 << ' ' << BoundingBox_y1 << ' ' << BoundingBox_x2
-         << ' ' << BoundingBox_y2 << '\n';
+    // cout << BoundingBox_x1 << ' ' << BoundingBox_y1 << ' ' << BoundingBox_x2
+    //      << ' ' << BoundingBox_y2 << '\n';
+    // 540 0
+    // 960 0
+    // 540 360
+    // 960 360
+    DensityWindow DensityWindow[1000];
+    int numberOfDensityWindows = 0;
 
     // Iterator for bounding box (color density window (window size = omega))
-    for (int i = BoundingBox_y1; i <= BoundingBox_y2; i += omega) {
-        for (int j = BoundingBox_x1; j <= BoundingBox_x2; j += omega) {
-            cout << j << ' ' << i << ' ' << j + omega << ' ' << i + omega
-                 << endl;
+    for (int i = BoundingBox_y1; i < BoundingBox_y2;) {
+        for (int j = BoundingBox_x1; j < BoundingBox_x2;) {
+            DensityWindow[numberOfDensityWindows].x1 = j;
+            DensityWindow[numberOfDensityWindows].y1 = i;
+            DensityWindow[numberOfDensityWindows].x2 = j + omega;
+            DensityWindow[numberOfDensityWindows].y2 = i + omega;
+            cout << j << " " << i << endl;
+            numberOfDensityWindows++;
+            if (j == BoundingBox_x2 - omega) break;
+            if (j + omega + omega > BoundingBox_x2) {
+                j = BoundingBox_x2 - omega;
+            } else
+                j += omega;
         }
+        if (i == BoundingBox_y2 - omega) break;
+        if (i + omega + omega > BoundingBox_y2) {
+            i = BoundingBox_y2 - omega;
+        } else
+            i += omega;
     }
 
-    // for (int i = 1; i <= numberOfComponents; i++) {
-    //     cout << i << ": " << component[i].graphConflicted
-    //          << endl;  // is Bipartite?
-    // }
-    // print_edge();
+    //  print_edge();
 
     //---output with edge format---
     // print_matrix();
