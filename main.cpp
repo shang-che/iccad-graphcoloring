@@ -268,11 +268,11 @@ int main() {
                 DensityWindow[i].y1 <= component[j].y2 &&
                 component[j].y2 <= DensityWindow[i].y2) {
                 if (component[j].color == 1)
-                    greenArea += (component[j].y2 - component[j].y1) *
-                                 (component[j].x2 - component[j].x1);
+                    greenArea += abs(component[j].y2 - component[j].y1) *
+                                 abs(component[j].x2 - component[j].x1);
                 else if (component[j].color == 2)
-                    blueArea += (component[j].y2 - component[j].y1) *
-                                (component[j].x2 - component[j].x1);
+                    blueArea += abs(component[j].y2 - component[j].y1) *
+                                abs(component[j].x2 - component[j].x1);
             }
             // id 2:top right corner
             else if (DensityWindow[i].x1 < component[j].x1 &&
@@ -282,11 +282,11 @@ int main() {
                      DensityWindow[i].y2 < component[j].y2 &&
                      DensityWindow[i].x2 < component[j].x2) {
                 if (component[j].color == 1)
-                    greenArea += (DensityWindow[i].y2 - component[j].y1) *
-                                 (DensityWindow[i].x2 - component[j].x1);
+                    greenArea += abs(DensityWindow[i].y2 - component[j].y1) *
+                                 abs(DensityWindow[i].x2 - component[j].x1);
                 else if (component[j].color == 2)
-                    blueArea += (DensityWindow[i].y2 - component[j].y1) *
-                                (DensityWindow[i].x2 - component[j].x1);
+                    blueArea += abs(DensityWindow[i].y2 - component[j].y1) *
+                                abs(DensityWindow[i].x2 - component[j].x1);
             }
             // id 3:right side
             else if (DensityWindow[i].x1 < component[j].x1 &&
@@ -297,11 +297,11 @@ int main() {
                      component[j].y2 < DensityWindow[i].y2 &&
                      DensityWindow[i].x2 < component[j].x2) {
                 if (component[j].color == 1)
-                    greenArea += (component[j].y2 - component[j].y1) *
-                                 (DensityWindow[i].x2 - component[j].x1);
+                    greenArea += abs(component[j].y2 - component[j].y1) *
+                                 abs(DensityWindow[i].x2 - component[j].x1);
                 else if (component[j].color == 2)
-                    blueArea += (component[j].y2 - component[j].y1) *
-                                (DensityWindow[i].x2 - component[j].x1);
+                    blueArea += abs(component[j].y2 - component[j].y1) *
+                                abs(DensityWindow[i].x2 - component[j].x1);
             }
             // id 4: bottom right side
             else if (DensityWindow[i].x1 < component[j].x1 &&
@@ -311,11 +311,11 @@ int main() {
                      DensityWindow[i].x2 < component[j].x2 &&
                      component[j].y1 < DensityWindow[i].y1) {
                 if (component[j].color == 1)
-                    greenArea += (DensityWindow[i].x2 - component[j].x1) *
-                                 (component[j].y2 - DensityWindow[i].y1);
+                    greenArea += abs(DensityWindow[i].x2 - component[j].x1) *
+                                 abs(component[j].y2 - DensityWindow[i].y1);
                 else if (component[j].color == 2)
-                    blueArea += (DensityWindow[i].x2 - component[j].x1) *
-                                (component[j].y2 - DensityWindow[i].y1);
+                    blueArea += abs(DensityWindow[i].x2 - component[j].x1) *
+                                abs(component[j].y2 - DensityWindow[i].y1);
             }
             // id 5:bottom side
             else if (DensityWindow[i].x1 < component[j].x1 &&
@@ -326,11 +326,11 @@ int main() {
                      component[j].y2 < DensityWindow[i].y2 &&
                      component[j].y1 < DensityWindow[i].y1) {
                 if (component[j].color == 1)
-                    greenArea += (component[j].y2 - DensityWindow[i].y1) *
-                                 (component[j].x2 - component[j].x1);
+                    greenArea += abs(component[j].y2 - DensityWindow[i].y1) *
+                                 abs(component[j].x2 - component[j].x1);
                 else if (component[j].color == 2)
-                    blueArea += (component[j].y2 - DensityWindow[i].y1) *
-                                (component[j].x2 - component[j].x1);
+                    blueArea += abs(component[j].y2 - DensityWindow[i].y1) *
+                                abs(component[j].x2 - component[j].x1);
             }
             // id 6:bottom left corner
             else if (DensityWindow[i].x1 < component[j].x2 &&
@@ -340,11 +340,11 @@ int main() {
                      component[j].y1 < DensityWindow[i].y1 &&
                      component[j].x1 < DensityWindow[i].x1) {
                 if (component[j].color == 1)
-                    greenArea += (component[j].y2 - DensityWindow[i].y1) *
-                                 (component[j].x2 - DensityWindow[i].x1);
+                    greenArea += abs(component[j].y2 - DensityWindow[i].y1) *
+                                 abs(component[j].x2 - DensityWindow[i].x1);
                 else if (component[j].color == 2)
-                    blueArea += (component[j].y2 - DensityWindow[i].y1) *
-                                (component[j].x2 - DensityWindow[i].x1);
+                    blueArea += abs(component[j].y2 - DensityWindow[i].y1) *
+                                abs(component[j].x2 - DensityWindow[i].x1);
             }
             // id 7:left side
             else if (DensityWindow[i].y1 < component[j].y1 &&
@@ -355,11 +355,11 @@ int main() {
                      component[j].y2 < DensityWindow[i].y2 &&
                      component[j].x1 < DensityWindow[i].x1) {
                 if (component[j].color == 1)
-                    greenArea += (component[j].x2 - DensityWindow[i].x1) *
-                                 (component[j].y2 - component[j].y1);
+                    greenArea += abs(component[j].x2 - DensityWindow[i].x1) *
+                                 abs(component[j].y2 - component[j].y1);
                 else if (component[j].color == 2)
-                    blueArea += (component[j].x2 - DensityWindow[i].x1) *
-                                (component[j].y2 - component[j].y1);
+                    blueArea += abs(component[j].x2 - DensityWindow[i].x1) *
+                                abs(component[j].y2 - component[j].y1);
             }
             // id 8:top left corner
             else if (DensityWindow[i].x1 < component[j].x2 &&
@@ -369,11 +369,11 @@ int main() {
                      component[j].x1 < DensityWindow[i].x1 &&
                      DensityWindow[i].y2 < component[j].y2) {
                 if (component[j].color == 1)
-                    greenArea += (DensityWindow[i].y2 - component[j].y1) *
-                                 (component[j].x2 - DensityWindow[i].x1);
+                    greenArea += abs(DensityWindow[i].y2 - component[j].y1) *
+                                 abs(component[j].x2 - DensityWindow[i].x1);
                 else if (component[j].color == 2)
-                    blueArea += (DensityWindow[i].y2 - component[j].y1) *
-                                (component[j].x2 - DensityWindow[i].x1);
+                    blueArea += abs(DensityWindow[i].y2 - component[j].y1) *
+                                abs(component[j].x2 - DensityWindow[i].x1);
             }
             // id 9:top side
             else if (DensityWindow[i].x1 < component[j].x1 &&
@@ -384,11 +384,11 @@ int main() {
                      component[j].y1 < DensityWindow[i].y2 &&
                      DensityWindow[i].y2 < component[j].y2) {
                 if (component[j].color == 1)
-                    greenArea += (DensityWindow[i].y2 - component[j].y1) *
-                                 (component[j].x2 - component[j].x1);
+                    greenArea += abs(DensityWindow[i].y2 - component[j].y1) *
+                                 abs(component[j].x2 - component[j].x1);
                 else if (component[j].color == 2)
-                    blueArea += (DensityWindow[i].y2 - component[j].y1) *
-                                (component[j].x2 - component[j].x1);
+                    blueArea += abs(DensityWindow[i].y2 - component[j].y1) *
+                                abs(component[j].x2 - component[j].x1);
             }
         }
         DensityWindow[i].greenArea = greenArea;
