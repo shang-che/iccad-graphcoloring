@@ -273,8 +273,8 @@ int main() {
                      << endl;
             }
             // id 2:top right corner
-            else if (dw.x1 < component[j].x1 && component[j].x1 < dw.x2 &&
-                     dw.y1 < component[j].y1 && component[j].y1 < dw.y2 &&
+            else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
+                     dw.y1 <= component[j].y1 && component[j].y1 <= dw.y2 &&
                      dw.y2 < component[j].y2 && dw.x2 < component[j].x2) {
                 if (component[j].color == 1)
                     greenArea += abs(dw.y2 - component[j].y1) *
@@ -288,9 +288,9 @@ int main() {
                      << endl;
             }
             // id 3:right side
-            else if (dw.x1 < component[j].x1 && component[j].x1 < dw.x2 &&
-                     dw.y1 < component[j].y1 && component[j].y1 < dw.y2 &&
-                     dw.y1 < component[j].y2 && component[j].y2 < dw.y2 &&
+            else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
+                     dw.y1 <= component[j].y1 && component[j].y1 <= dw.y2 &&
+                     dw.y1 <= component[j].y2 && component[j].y2 <= dw.y2 &&
                      dw.x2 < component[j].x2) {
                 if (component[j].color == 1)
                     greenArea += abs(component[j].y2 - component[j].y1) *
@@ -304,8 +304,8 @@ int main() {
                      << endl;
             }
             // id 4: bottom right side
-            else if (dw.x1 < component[j].x1 && component[j].x1 < dw.x2 &&
-                     dw.y1 < component[j].y2 && component[j].y2 < dw.y2 &&
+            else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
+                     dw.y1 <= component[j].y2 && component[j].y2 <= dw.y2 &&
                      dw.x2 < component[j].x2 && component[j].y1 < dw.y1) {
                 if (component[j].color == 1)
                     greenArea += abs(dw.x2 - component[j].x1) *
@@ -319,9 +319,9 @@ int main() {
                      << endl;
             }
             // id 5:bottom side
-            else if (dw.x1 < component[j].x1 && component[j].x1 < dw.x2 &&
-                     dw.x1 < component[j].x2 && component[j].x2 < dw.x2 &&
-                     dw.y1 < component[j].y2 && component[j].y2 < dw.y2 &&
+            else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
+                     dw.x1 <= component[j].x2 && component[j].x2 <= dw.x2 &&
+                     dw.y1 <= component[j].y2 && component[j].y2 <= dw.y2 &&
                      component[j].y1 < dw.y1) {
                 if (component[j].color == 1)
                     greenArea += abs(component[j].y2 - dw.y1) *
@@ -335,8 +335,8 @@ int main() {
                      << endl;
             }
             // id 6:bottom left corner
-            else if (dw.x1 < component[j].x2 && component[j].x2 < dw.x2 &&
-                     dw.y1 < component[j].y2 && component[j].y2 < dw.y2 &&
+            else if (dw.x1 <= component[j].x2 && component[j].x2 <= dw.x2 &&
+                     dw.y1 <= component[j].y2 && component[j].y2 <= dw.y2 &&
                      component[j].y1 < dw.y1 && component[j].x1 < dw.x1) {
                 if (component[j].color == 1)
                     greenArea += abs(component[j].y2 - dw.y1) *
@@ -350,9 +350,9 @@ int main() {
                      << endl;
             }
             // id 7:left side
-            else if (dw.y1 < component[j].y1 && component[j].y1 < dw.y2 &&
-                     dw.x1 < component[j].x2 && component[j].x2 < dw.x2 &&
-                     dw.y1 < component[j].y2 && component[j].y2 < dw.y2 &&
+            else if (dw.y1 <= component[j].y1 && component[j].y1 <= dw.y2 &&
+                     dw.x1 <= component[j].x2 && component[j].x2 <= dw.x2 &&
+                     dw.y1 <= component[j].y2 && component[j].y2 <= dw.y2 &&
                      component[j].x1 < dw.x1) {
                 if (component[j].color == 1)
                     greenArea += abs(component[j].x2 - dw.x1) *
@@ -366,8 +366,8 @@ int main() {
                      << endl;
             }
             // id 8:top left corner
-            else if (dw.x1 < component[j].x2 && component[j].x2 < dw.x2 &&
-                     dw.y1 < component[j].y1 && component[j].y1 < dw.y2 &&
+            else if (dw.x1 <= component[j].x2 && component[j].x2 <= dw.x2 &&
+                     dw.y1 <= component[j].y1 && component[j].y1 <= dw.y2 &&
                      component[j].x1 < dw.x1 && dw.y2 < component[j].y2) {
                 if (component[j].color == 1)
                     greenArea += abs(dw.y2 - component[j].y1) *
@@ -381,9 +381,9 @@ int main() {
                      << endl;
             }
             // id 9:top side
-            else if (dw.x1 < component[j].x1 && component[j].x1 < dw.x2 &&
-                     dw.x1 < component[j].x2 && component[j].x2 < dw.x2 &&
-                     dw.y1 < component[j].y1 && component[j].y1 < dw.y2 &&
+            else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
+                     dw.x1 <= component[j].x2 && component[j].x2 <= dw.x2 &&
+                     dw.y1 <= component[j].y1 && component[j].y1 <= dw.y2 &&
                      dw.y2 < component[j].y2) {
                 if (component[j].color == 1)
                     greenArea += abs(dw.y2 - component[j].y1) *
@@ -406,6 +406,7 @@ int main() {
         cout.setf(ios::fixed);
         cout << dw.greenDensity * 100 << " " << dw.blueDensity * 100 << endl;
     }
+    //-------------------------------------------
 
     //  print_edge();
 
