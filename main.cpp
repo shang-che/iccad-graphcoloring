@@ -399,20 +399,23 @@ int main() {
         }
         dw.greenArea = greenArea;
         dw.blueArea = blueArea;
-        dw.greenDensity = (double)greenArea / (omega * omega);
-        dw.blueDensity = (double)blueArea / (omega * omega);
+        dw.greenDensity = (double)greenArea / (omega * omega) * 100;
+        dw.blueDensity = (double)blueArea / (omega * omega) * 100;
         cout << greenArea << " " << blueArea << endl;
         cout.precision(2);
         cout.setf(ios::fixed);
-        cout << dw.greenDensity * 100 << " " << dw.blueDensity * 100 << endl;
+        cout << dw.greenDensity << " " << dw.blueDensity << endl;
     }
+    puts("----");
+    double cost = 30;
+    for (auto& dw : densitywindow) {
+        cost += fabs(70.0 / densitywindow.size() -
+                     (fabs(dw.greenDensity - dw.blueDensity) / 5));
+    }
+    cout << cost << endl;
     //-------------------------------------------
-
-    //  print_edge();
-
-    //---output with edge format---
-    // print_matrix();
-    //---output with matrix format---
+    // use gene algorithm to find highest cost for coloring the components
+    //-------------------------------------------
 }
 
 int getNumber(string st) {
