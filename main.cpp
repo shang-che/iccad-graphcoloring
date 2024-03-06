@@ -11,17 +11,15 @@ using namespace std;
 int getNumber(string);
 void print_edge();
 void print_matrix();
-void dfs(int node, int numNodes, int edge[][9999], vector<bool>& visited,
-         int count);
+void dfsCountConnectedGraph(int node, int numNodes, int edge[][9999],
+                            vector<bool>& visited, int count);
 int countConnectedGraph(int numNodes, int edge[][9999]);
 bool isBipartite(unordered_map<int, vector<int> >& graph);
 bool dfsBipartite(int node, int currentColor, unordered_map<int, int>& color,
                   unordered_map<int, vector<int> >& graph);
-
 class Component {
    public:
     int x1, y1, x2, y2;
-    int connectwith;
     int color;
     int id;
     int graphId;
@@ -34,7 +32,6 @@ class Component {
         this->y2 = y2;
         this->color = color;
         this->id = id;
-        this->connectwith = connectwith;
     }
     Component() {
         this->x1 = 0;
@@ -70,10 +67,28 @@ class DensityWindow {
 Component component[1000];
 int edge[9999][9999];        // adjency matrix
 int numberOfComponents = 1;  // number of components
-int color[99] = {0, 0, 0, 0, 0, 0, 2, 1, 1, 2, 2,
-                 1, 1, 2, 1, 2, 2, 1, 2, 1};  // 0 no color, 1 color A(green), 2
-                                              // color B(blue)
+// int color[99] = {0, 0, 0, 0, 0, 0, 2, 1, 1, 2,
+//                  2, 1, 1, 2, 1, 2, 2, 1, 2, 1};  // 0 no color, 1 color
+//                  A(green), 2
+//                                               // color B(blue)
 
+class chromosome {
+   public:
+    int gene[1000];
+    double fitness;
+    chromosome() {
+        for (int i = 0; i < 1000; i++) {
+            gene[i] = 0;
+        }
+        fitness = 0;
+    }
+    chromosome(int gene[], double fitness) {
+        for (int i = 0; i < 1000; i++) {
+            this->gene[i] = gene[i];
+        }
+        this->fitness = fitness;
+    }
+};
 int main() {
     bool flag = true;
     freopen("input.in", "r", stdin);
@@ -98,7 +113,7 @@ int main() {
         component[numberOfComponents].y1 = b;  // y1 y1<y2 bottom left
         component[numberOfComponents].x2 = c;  // x2 top right
         component[numberOfComponents].y2 = d;  // y2 top right
-        component[numberOfComponents].color = color[numberOfComponents];
+        // component[numberOfComponents].color = color[numberOfComponents];
         numberOfComponents += 1;
     }
     numberOfComponents--;  // fix the number of components
@@ -220,12 +235,6 @@ int main() {
                 BoundingBox_y2 = component[i].y2;
         }
     }
-    // cout << BoundingBox_x1 << ' ' << BoundingBox_y1 << ' ' << BoundingBox_x2
-    //      << ' ' << BoundingBox_y2 << '\n';
-    // 540 0
-    // 960 0
-    // 540 360
-    // 960 360
     vector<DensityWindow> densitywindow;
 
     // Iterator for bounding box (color density window (window size = omega))
@@ -237,7 +246,7 @@ int main() {
             temp.x2 = j + omega;
             temp.y2 = i + omega;
             densitywindow.push_back(temp);
-            cout << j << " " << i << endl;
+            // cout << j << " " << i << endl;
             if (j == BoundingBox_x2 - omega) break;
             if (j + omega + omega > BoundingBox_x2) {
                 j = BoundingBox_x2 - omega;
@@ -250,7 +259,21 @@ int main() {
         } else
             i += omega;
     }
+    double calculateFitness(vector<DensityWindow> densitywindow, int omega);
+    // cout << calculateFitness(densitywindow, omega) << endl;
+    //-------------------------------------------
+    // use gene algorithm to find highest cost for coloring the components
+    //-------------------------------------------
 
+    for (int i = 1; i <= numberOfComponents; i++) {
+        cout << i << ": \n" << component[i].color << endl;
+        cout << component[i].graphId << endl;
+        cout << component[i].graphConflicted << endl;
+        cout << endl;
+    }
+}
+
+double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
     // Calculate the color density of each density window
     for (auto& dw : densitywindow) {
         int greenArea = 0, blueArea = 0;
@@ -267,10 +290,10 @@ int main() {
                 else if (component[j].color == 2)
                     blueArea += abs(component[j].y2 - component[j].y1) *
                                 abs(component[j].x2 - component[j].x1);
-                cout << "1: " << j << ": "
-                     << abs(component[j].y2 - component[j].y1) *
-                            abs(component[j].x2 - component[j].x1)
-                     << endl;
+                // cout << "1: " << j << ": "
+                //      << abs(component[j].y2 - component[j].y1) *
+                //             abs(component[j].x2 - component[j].x1)
+                //      << endl;
             }
             // id 2:top right corner
             else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
@@ -282,10 +305,10 @@ int main() {
                 else if (component[j].color == 2)
                     blueArea += abs(dw.y2 - component[j].y1) *
                                 abs(dw.x2 - component[j].x1);
-                cout << "2: " << j << ": "
-                     << abs(dw.y2 - component[j].y1) *
-                            abs(dw.x2 - component[j].x1)
-                     << endl;
+                // cout << "2: " << j << ": "
+                //      << abs(dw.y2 - component[j].y1) *
+                //             abs(dw.x2 - component[j].x1)
+                //      << endl;
             }
             // id 3:right side
             else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
@@ -298,10 +321,10 @@ int main() {
                 else if (component[j].color == 2)
                     blueArea += abs(component[j].y2 - component[j].y1) *
                                 abs(dw.x2 - component[j].x1);
-                cout << "3: " << j << ": "
-                     << abs(component[j].y2 - component[j].y1) *
-                            abs(dw.x2 - component[j].x1)
-                     << endl;
+                // cout << "3: " << j << ": "
+                //      << abs(component[j].y2 - component[j].y1) *
+                //             abs(dw.x2 - component[j].x1)
+                //      << endl;
             }
             // id 4: bottom right side
             else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
@@ -313,10 +336,10 @@ int main() {
                 else if (component[j].color == 2)
                     blueArea += abs(dw.x2 - component[j].x1) *
                                 abs(component[j].y2 - dw.y1);
-                cout << "4: " << j << ": "
-                     << abs(dw.x2 - component[j].x1) *
-                            abs(component[j].y2 - dw.y1)
-                     << endl;
+                // cout << "4: " << j << ": "
+                //      << abs(dw.x2 - component[j].x1) *
+                //             abs(component[j].y2 - dw.y1)
+                //      << endl;
             }
             // id 5:bottom side
             else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
@@ -329,10 +352,10 @@ int main() {
                 else if (component[j].color == 2)
                     blueArea += abs(component[j].y2 - dw.y1) *
                                 abs(component[j].x2 - component[j].x1);
-                cout << "5: " << j << ": "
-                     << abs(component[j].y2 - dw.y1) *
-                            abs(component[j].x2 - component[j].x1)
-                     << endl;
+                // cout << "5: " << j << ": "
+                //      << abs(component[j].y2 - dw.y1) *
+                //             abs(component[j].x2 - component[j].x1)
+                //      << endl;
             }
             // id 6:bottom left corner
             else if (dw.x1 <= component[j].x2 && component[j].x2 <= dw.x2 &&
@@ -344,10 +367,10 @@ int main() {
                 else if (component[j].color == 2)
                     blueArea += abs(component[j].y2 - dw.y1) *
                                 abs(component[j].x2 - dw.x1);
-                cout << "6: " << j << ": "
-                     << abs(component[j].y2 - dw.y1) *
-                            abs(component[j].x2 - dw.x1)
-                     << endl;
+                // cout << "6: " << j << ": "
+                //      << abs(component[j].y2 - dw.y1) *
+                //             abs(component[j].x2 - dw.x1)
+                //      << endl;
             }
             // id 7:left side
             else if (dw.y1 <= component[j].y1 && component[j].y1 <= dw.y2 &&
@@ -360,10 +383,10 @@ int main() {
                 else if (component[j].color == 2)
                     blueArea += abs(component[j].x2 - dw.x1) *
                                 abs(component[j].y2 - component[j].y1);
-                cout << "7: " << j << ": "
-                     << abs(component[j].x2 - dw.x1) *
-                            abs(component[j].y2 - component[j].y1)
-                     << endl;
+                // cout << "7: " << j << ": "
+                //      << abs(component[j].x2 - dw.x1) *
+                //             abs(component[j].y2 - component[j].y1)
+                //      << endl;
             }
             // id 8:top left corner
             else if (dw.x1 <= component[j].x2 && component[j].x2 <= dw.x2 &&
@@ -375,10 +398,10 @@ int main() {
                 else if (component[j].color == 2)
                     blueArea += abs(dw.y2 - component[j].y1) *
                                 abs(component[j].x2 - dw.x1);
-                cout << "8: " << j << ": "
-                     << abs(dw.y2 - component[j].y1) *
-                            abs(component[j].x2 - dw.x1)
-                     << endl;
+                // cout << "8: " << j << ": "
+                //      << abs(dw.y2 - component[j].y1) *
+                //             abs(component[j].x2 - dw.x1)
+                //      << endl;
             }
             // id 9:top side
             else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
@@ -391,33 +414,29 @@ int main() {
                 else if (component[j].color == 2)
                     blueArea += abs(dw.y2 - component[j].y1) *
                                 abs(component[j].x2 - component[j].x1);
-                cout << "9: " << j << ": "
-                     << abs(dw.y2 - component[j].y1) *
-                            abs(component[j].x2 - component[j].x1)
-                     << endl;
+                // cout << "9: " << j << ": "
+                //      << abs(dw.y2 - component[j].y1) *
+                //             abs(component[j].x2 - component[j].x1)
+                //      << endl;
             }
         }
         dw.greenArea = greenArea;
         dw.blueArea = blueArea;
         dw.greenDensity = (double)greenArea / (omega * omega) * 100;
         dw.blueDensity = (double)blueArea / (omega * omega) * 100;
-        cout << greenArea << " " << blueArea << endl;
-        cout.precision(2);
-        cout.setf(ios::fixed);
-        cout << dw.greenDensity << " " << dw.blueDensity << endl;
+        // cout << greenArea << " " << blueArea << endl;
+        // cout.precision(2);
+        // cout.setf(ios::fixed);
+        // cout << dw.greenDensity << " " << dw.blueDensity << endl;
     }
-    puts("----");
+    // puts("----");
     double cost = 30;
     for (auto& dw : densitywindow) {
         cost += fabs(70.0 / densitywindow.size() -
                      (fabs(dw.greenDensity - dw.blueDensity) / 5));
     }
-    cout << cost << endl;
-    //-------------------------------------------
-    // use gene algorithm to find highest cost for coloring the components
-    //-------------------------------------------
+    return cost;
 }
-
 int getNumber(string st) {
     int ret = -1;
     size_t equalPos = st.find("=");
@@ -443,14 +462,15 @@ void print_matrix() {  // print edge
         cout << '\n';
     }
 }
-void dfs(int node, int numNodes, int edge[][9999], vector<bool>& visited,
-         int count) {
+void dfsCountConnectedGraph(int node, int numNodes, int edge[][9999],
+                            vector<bool>& visited, int count) {
     visited[node] = true;
     component[node].graphId = count;
     for (int neighbor = 1; neighbor <= numNodes; ++neighbor) {
         if (edge[node][neighbor] == 1) {
             if (!visited[neighbor]) {
-                dfs(neighbor, numNodes, edge, visited, count);
+                dfsCountConnectedGraph(neighbor, numNodes, edge, visited,
+                                       count);
             }
             // dfs(neighbor, numNodes, edge, visited);
         }
@@ -462,7 +482,7 @@ int countConnectedGraph(int numNodes, int edge[][9999]) {
 
     for (int node = 1; node <= numNodes; ++node) {
         if (!visited[node]) {
-            dfs(node, numNodes, edge, visited, count);
+            dfsCountConnectedGraph(node, numNodes, edge, visited, count);
             count++;
         }
     }
