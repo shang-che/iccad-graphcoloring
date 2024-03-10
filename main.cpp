@@ -1,11 +1,15 @@
 #include <string.h>
 
 #include <algorithm>
+#include <cstdlib>
+#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
 #include <vector>
+#define INT_MAX 2147483647
+#define INT_MIN -2147483647
 using namespace std;
 
 int getNumber(string);
@@ -17,6 +21,8 @@ int countConnectedGraph(int numNodes, int edge[][9999]);
 bool isBipartite(unordered_map<int, vector<int> >& graph);
 bool dfsBipartite(int node, int currentColor, unordered_map<int, int>& color,
                   unordered_map<int, vector<int> >& graph);
+void paintColor(vector<int>, int);
+
 class Component {
    public:
     int x1, y1, x2, y2;
@@ -24,8 +30,7 @@ class Component {
     int id;
     int graphId;
     bool graphConflicted;
-    Component(int x1, int y1, int x2, int y2, int color, int id,
-              int connectwith) {
+    Component(int x1, int y1, int x2, int y2, int color, int id) {
         this->x1 = x1;
         this->y1 = y1;
         this->x2 = x2;
@@ -72,23 +77,6 @@ int numberOfComponents = 1;  // number of components
 //                  A(green), 2
 //                                               // color B(blue)
 
-class chromosome {
-   public:
-    int gene[1000];
-    double fitness;
-    chromosome() {
-        for (int i = 0; i < 1000; i++) {
-            gene[i] = 0;
-        }
-        fitness = 0;
-    }
-    chromosome(int gene[], double fitness) {
-        for (int i = 0; i < 1000; i++) {
-            this->gene[i] = gene[i];
-        }
-        this->fitness = fitness;
-    }
-};
 int main() {
     bool flag = true;
     freopen("input.in", "r", stdin);
@@ -197,6 +185,7 @@ int main() {
     }
 
     int numConnectedGraph = countConnectedGraph(numberOfComponents, edge) - 1;
+    int numConnectedGraphConflict = 0;
     // check conflict
     for (int i = 1; i <= numConnectedGraph; i++) {
         unordered_map<int, vector<int> > subGraph;
@@ -209,6 +198,7 @@ int main() {
             }
         }
         bool isConflict = !isBipartite(subGraph);  // not conflict == Bitpartite
+        numConnectedGraphConflict += isConflict;
         for (int j = 1; j <= numberOfComponents; j++) {
             if (component[j].graphId == i)
                 component[j].graphConflicted = isConflict;
@@ -259,20 +249,94 @@ int main() {
         } else
             i += omega;
     }
-    double calculateFitness(vector<DensityWindow> densitywindow, int omega);
-    // cout << calculateFitness(densitywindow, omega) << endl;
-    //-------------------------------------------
-    // use gene algorithm to find highest cost for coloring the components
-    //-------------------------------------------
-
-    for (int i = 1; i <= numberOfComponents; i++) {
-        cout << i << ": \n" << component[i].color << endl;
-        cout << component[i].graphId << endl;
-        cout << component[i].graphConflicted << endl;
-        cout << endl;
+    // initialize color
+    srand(time(NULL));
+    vector<int> ansInit;
+    for (int i = 0; i < numConnectedGraph - numConnectedGraphConflict; i++) {
+        ansInit.push_back(rand() % 2 + 1);
+        // cout << int(ans[i]) << endl;
     }
+
+    // paintColor(ansInit, numberOfComponents);
+
+    puts("----------------");
+
+    cout << fixed;
+    cout << setprecision(2);
+    // cout << calculateFitness(densitywindow, omega) << endl;
+    double tInitial = 3000;
+    double tFinal = 0.1;
+    int nMarkov = 100;
+    double alfa = 0.98;
+    void simulatedAnnealing(double tInitial, double tFinal, int nMarkov,
+                            double alfa, vector<int> ansInit,
+                            vector<DensityWindow> densitywindow, int omega);
+    simulatedAnnealing(tInitial, tFinal, nMarkov, alfa, ansInit, densitywindow,
+                       omega);
 }
 
+void simulatedAnnealing(double tInitial, double tFinal, int nMarkov,
+                        double alfa, vector<int> ansInit,
+                        vector<DensityWindow> densitywindow, int omega) {
+    double calculateFitness(vector<DensityWindow> densitywindow, int omega);
+    int t = tInitial;
+    vector<int> bestAns = ansInit;
+    vector<int> currentAns = bestAns;
+    paintColor(ansInit, numberOfComponents);
+    double bestCost = calculateFitness(densitywindow, omega);
+    double currentCost = bestCost;
+    while (t > tFinal) {
+        for (int i = 0; i < nMarkov; i++) {
+            // generate a new solution
+            currentAns[rand() % bestAns.size()] = rand() % 2 + 1;
+            // calculate the cost of the new solution
+            paintColor(currentAns, numberOfComponents);
+            currentCost = calculateFitness(densitywindow, omega);
+            // calculate the cost of the current solution
+            // if the new solution is better than the current solution, accept
+            // the new solution if the new solution is worse than the current
+            // solution, accept the new solution with a probability of
+            // e^((cost_new-cost_current)/t)
+            // Metropolis rule
+            if (currentCost > bestCost) {
+                bestCost = currentCost;
+                bestAns = currentAns;
+            } else if (exp((currentCost - bestCost) / t) >
+                       (rand() % 100) / 100) {
+                bestCost = currentCost;
+                bestAns = currentAns;
+            }
+        }
+        cout << "bestCost: " << bestCost << endl;
+        t *= alfa;
+    }
+}
+void paintColor(vector<int> ans, int numberOfComponents) {
+    void dfsPaintColor(int numberOfComponents, vector<bool>& visited, int node,
+                       int color);
+    vector<bool> visited(numberOfComponents, false);
+    for (int i = 1, s = 0; i <= numberOfComponents; i++) {
+        if (visited[i] == false && component[i].graphConflicted == false) {
+            visited[i] = true;
+            component[i].color = ans[s];
+            s++;
+            dfsPaintColor(numberOfComponents, visited, i, component[i].color);
+        }
+    }
+}
+void dfsPaintColor(int numberOfComponents, vector<bool>& visited, int node,
+                   int color) {
+    visited[node] = true;
+    component[node].color = color;
+    for (int neighbor = 1; neighbor <= numberOfComponents; ++neighbor) {
+        if (edge[node][neighbor] == 1) {
+            if (!visited[neighbor]) {
+                dfsPaintColor(numberOfComponents, visited, neighbor,
+                              (color + 2) % 2 + 1);
+            }
+        }
+    }
+}
 double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
     // Calculate the color density of each density window
     for (auto& dw : densitywindow) {
@@ -290,10 +354,6 @@ double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
                 else if (component[j].color == 2)
                     blueArea += abs(component[j].y2 - component[j].y1) *
                                 abs(component[j].x2 - component[j].x1);
-                // cout << "1: " << j << ": "
-                //      << abs(component[j].y2 - component[j].y1) *
-                //             abs(component[j].x2 - component[j].x1)
-                //      << endl;
             }
             // id 2:top right corner
             else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
@@ -305,10 +365,6 @@ double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
                 else if (component[j].color == 2)
                     blueArea += abs(dw.y2 - component[j].y1) *
                                 abs(dw.x2 - component[j].x1);
-                // cout << "2: " << j << ": "
-                //      << abs(dw.y2 - component[j].y1) *
-                //             abs(dw.x2 - component[j].x1)
-                //      << endl;
             }
             // id 3:right side
             else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
@@ -321,10 +377,6 @@ double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
                 else if (component[j].color == 2)
                     blueArea += abs(component[j].y2 - component[j].y1) *
                                 abs(dw.x2 - component[j].x1);
-                // cout << "3: " << j << ": "
-                //      << abs(component[j].y2 - component[j].y1) *
-                //             abs(dw.x2 - component[j].x1)
-                //      << endl;
             }
             // id 4: bottom right side
             else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
@@ -336,10 +388,6 @@ double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
                 else if (component[j].color == 2)
                     blueArea += abs(dw.x2 - component[j].x1) *
                                 abs(component[j].y2 - dw.y1);
-                // cout << "4: " << j << ": "
-                //      << abs(dw.x2 - component[j].x1) *
-                //             abs(component[j].y2 - dw.y1)
-                //      << endl;
             }
             // id 5:bottom side
             else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
@@ -352,10 +400,6 @@ double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
                 else if (component[j].color == 2)
                     blueArea += abs(component[j].y2 - dw.y1) *
                                 abs(component[j].x2 - component[j].x1);
-                // cout << "5: " << j << ": "
-                //      << abs(component[j].y2 - dw.y1) *
-                //             abs(component[j].x2 - component[j].x1)
-                //      << endl;
             }
             // id 6:bottom left corner
             else if (dw.x1 <= component[j].x2 && component[j].x2 <= dw.x2 &&
@@ -367,10 +411,6 @@ double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
                 else if (component[j].color == 2)
                     blueArea += abs(component[j].y2 - dw.y1) *
                                 abs(component[j].x2 - dw.x1);
-                // cout << "6: " << j << ": "
-                //      << abs(component[j].y2 - dw.y1) *
-                //             abs(component[j].x2 - dw.x1)
-                //      << endl;
             }
             // id 7:left side
             else if (dw.y1 <= component[j].y1 && component[j].y1 <= dw.y2 &&
@@ -383,10 +423,6 @@ double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
                 else if (component[j].color == 2)
                     blueArea += abs(component[j].x2 - dw.x1) *
                                 abs(component[j].y2 - component[j].y1);
-                // cout << "7: " << j << ": "
-                //      << abs(component[j].x2 - dw.x1) *
-                //             abs(component[j].y2 - component[j].y1)
-                //      << endl;
             }
             // id 8:top left corner
             else if (dw.x1 <= component[j].x2 && component[j].x2 <= dw.x2 &&
@@ -398,10 +434,6 @@ double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
                 else if (component[j].color == 2)
                     blueArea += abs(dw.y2 - component[j].y1) *
                                 abs(component[j].x2 - dw.x1);
-                // cout << "8: " << j << ": "
-                //      << abs(dw.y2 - component[j].y1) *
-                //             abs(component[j].x2 - dw.x1)
-                //      << endl;
             }
             // id 9:top side
             else if (dw.x1 <= component[j].x1 && component[j].x1 <= dw.x2 &&
@@ -414,23 +446,15 @@ double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
                 else if (component[j].color == 2)
                     blueArea += abs(dw.y2 - component[j].y1) *
                                 abs(component[j].x2 - component[j].x1);
-                // cout << "9: " << j << ": "
-                //      << abs(dw.y2 - component[j].y1) *
-                //             abs(component[j].x2 - component[j].x1)
-                //      << endl;
             }
         }
         dw.greenArea = greenArea;
         dw.blueArea = blueArea;
         dw.greenDensity = (double)greenArea / (omega * omega) * 100;
         dw.blueDensity = (double)blueArea / (omega * omega) * 100;
-        // cout << greenArea << " " << blueArea << endl;
-        // cout.precision(2);
-        // cout.setf(ios::fixed);
-        // cout << dw.greenDensity << " " << dw.blueDensity << endl;
     }
     // puts("----");
-    double cost = 30;
+    double cost = 30.0;
     for (auto& dw : densitywindow) {
         cost += fabs(70.0 / densitywindow.size() -
                      (fabs(dw.greenDensity - dw.blueDensity) / 5));
