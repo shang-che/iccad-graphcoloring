@@ -38,6 +38,14 @@ class Component {
         this->color = color;
         this->id = id;
     }
+    int top() { return y2; }
+
+    int right() { return x2; }
+
+    int bottom() { return y1; }
+
+    int left() { return x1; }
+
     Component() {
         this->x1 = 0;
         this->y1 = 0;
@@ -111,80 +119,44 @@ int main() {
     int edge_num = 0;
     for (int i = 1; i <= numberOfComponents; i++) {
         for (int j = 1; j <= numberOfComponents; j++) {
-            // //i是要比較的shape
-            // //j是要跟他比的shape
-            if (j == i) continue;
+            int delta = 0;
+            if (i == j) continue;
+            if (!(component[i].bottom() > component[j].top()) &&
+                !(component[i].top() < component[j].bottom())) {
+                if (component[i].left() > component[j].right())
+                    delta = component[i].left() - component[j].right();
+                else if (component[i].right() < component[j].left())
+                    delta = component[j].left() - component[i].right();
+                else
+                    continue;
 
-            if (component[i].x1 <= component[j].x1 &&
-                component[j].x1 <=
-                    component[i]
-                        .x2) {  // 看j shape的兩個點的x有沒有在i shape的範圍內
-                int y_distance =
-                    min(min(abs(component[i].y1 - component[j].y2),
-                            abs(component[i].y1 - component[j].y1)),
-                        min(abs(component[i].y2 - component[j].y1),
-                            abs(component[i].y2 - component[j].y2)));
-                if (y_distance <= beta) {
+                if (delta <= alpha) {
                     edge_num++;
                     edge[i][j] = 1;
                     edge[j][i] = 1;
-                }
-            } else if (component[i].x1 <= component[j].x2 &&
-                       component[j].x2 <=
-                           component[i].x2) {  // 看j shape的兩個點的x有沒有在i
-                                               // shape的範圍內
-                int y_distance =
-                    min(min(abs(component[i].y1 - component[j].y2),
-                            abs(component[i].y1 - component[j].y1)),
-                        min(abs(component[i].y2 - component[j].y1),
-                            abs(component[i].y2 - component[j].y2)));
-                if (y_distance <= beta) {
+                } else
+                    continue;
+            } else if (!(component[i].left() > component[j].right()) &&
+                       !(component[i].right() < component[j].left())) {
+                if (component[i].bottom() > component[j].top())
+                    delta = component[i].bottom() - component[j].top();
+                else if (component[i].top() < component[j].bottom())
+                    delta = component[j].bottom() - component[i].top();
+                else
+                    continue;
+
+                if (delta <= beta) {
                     edge_num++;
                     edge[i][j] = 1;
                     edge[j][i] = 1;
-                }
-            } else if (component[i].y1 <= component[j].y1 &&
-                       component[j].y1 <=
-                           component[i].y2) {  // 看j shape的兩個點的y有沒有在i
-                                               // shape的範圍內
-                int x_distance =
-                    min(min(abs(component[i].x1 - component[j].x1),
-                            abs(component[i].x1 - component[j].x2)),
-                        min(abs(component[i].x2 - component[j].x1),
-                            abs(component[i].x2 - component[j].x2)));
-                if (x_distance <= alpha) {
-                    edge_num++;
-                    edge[i][j] = 1;
-                    edge[j][i] = 1;
-                }
-            } else if (component[i].y1 <= component[j].y2 &&
-                       component[j].y2 <=
-                           component[i].y2) {  // 看j shape的兩個點的y有沒有在i
-                                               // shape的範圍內
-                int x_distance =
-                    min(min(abs(component[i].x1 - component[j].x1),
-                            abs(component[i].x1 - component[j].x2)),
-                        min(abs(component[i].x2 - component[j].x1),
-                            abs(component[i].x2 - component[j].x2)));
-                if (x_distance <= alpha) {
-                    edge_num++;
-                    edge[i][j] = 1;
-                    edge[j][i] = 1;
-                }
+                } else
+                    continue;
             }
-            /*
-            x
-            pos[i][0] <= pos[j][0] <= pos[i][2];
-            pos[i][0] <= pos[j][2] <= pos[i][2];
-
-            y
-            pos[i][1] <= pos[j][1] <= pos[i][3];
-            pos[i][1] <= pos[j][3] <= pos[i][3];
-            */
         }
     }
-
+    print_edge();
     int numConnectedGraph = countConnectedGraph(numberOfComponents, edge) - 1;
+    cout << "numConnectedGraph: " << numConnectedGraph << endl;
     int numConnectedGraphConflict = 0;
     // check conflict
     for (int i = 1; i <= numConnectedGraph; i++) {
@@ -215,14 +187,14 @@ int main() {
     // y2 top right
     for (int i = 1; i <= numberOfComponents; i++) {
         if (!component[i].graphConflicted) {
-            if (component[i].x1 < BoundingBox_x1)
-                BoundingBox_x1 = component[i].x1;
-            if (component[i].y1 < BoundingBox_y1)
-                BoundingBox_y1 = component[i].y1;
-            if (component[i].x2 > BoundingBox_x2)
-                BoundingBox_x2 = component[i].x2;
-            if (component[i].y2 > BoundingBox_y2)
-                BoundingBox_y2 = component[i].y2;
+            if (component[i].left() < BoundingBox_x1)
+                BoundingBox_x1 = component[i].left();
+            if (component[i].bottom() < BoundingBox_y1)
+                BoundingBox_y1 = component[i].bottom();
+            if (component[i].right() > BoundingBox_x2)
+                BoundingBox_x2 = component[i].right();
+            if (component[i].top() > BoundingBox_y2)
+                BoundingBox_y2 = component[i].top();
         }
     }
     vector<DensityWindow> densitywindow;
@@ -259,7 +231,7 @@ int main() {
 
     // paintColor(ansInit, numberOfComponents);
 
-    puts("----------------");
+    // puts("----------------");
 
     cout << fixed;
     cout << setprecision(2);
@@ -273,6 +245,9 @@ int main() {
                             vector<DensityWindow> densitywindow, int omega);
     simulatedAnnealing(tInitial, tFinal, nMarkov, alfa, ansInit, densitywindow,
                        omega);
+    for (int i = 1; i <= numberOfComponents; i++) {
+        cout << component[i].color << endl;
+    }
 }
 
 void simulatedAnnealing(double tInitial, double tFinal, int nMarkov,
@@ -285,6 +260,8 @@ void simulatedAnnealing(double tInitial, double tFinal, int nMarkov,
     paintColor(ansInit, numberOfComponents);
     double bestCost = calculateFitness(densitywindow, omega);
     double currentCost = bestCost;
+    double answerCost = 0;
+    vector<int> answerAns;
     while (t > tFinal) {
         for (int i = 0; i < nMarkov; i++) {
             // generate a new solution
@@ -306,10 +283,16 @@ void simulatedAnnealing(double tInitial, double tFinal, int nMarkov,
                 bestCost = currentCost;
                 bestAns = currentAns;
             }
+            if (answerCost < bestCost) {
+                answerCost = bestCost;
+                answerAns = bestAns;
+            }
         }
-        cout << "bestCost: " << bestCost << endl;
+
         t *= alfa;
     }
+    cout << "bestCost: " << answerCost << endl;
+    paintColor(answerAns, numberOfComponents);
 }
 void paintColor(vector<int> ans, int numberOfComponents) {
     void dfsPaintColor(int numberOfComponents, vector<bool>& visited, int node,
@@ -459,6 +442,7 @@ double calculateFitness(vector<DensityWindow> densitywindow, int omega) {
         cost += fabs(70.0 / densitywindow.size() -
                      (fabs(dw.greenDensity - dw.blueDensity) / 5));
     }
+    // cout << cost << endl;
     return cost;
 }
 int getNumber(string st) {
